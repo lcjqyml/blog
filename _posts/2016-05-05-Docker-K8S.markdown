@@ -2,15 +2,15 @@
 layout:     post
 title:      "CentOS7下Docker+k8s集群的安装过程"
 subtitle:   ""
-date:       2016-05-05 10:00:00
+date:       2016-05-05
 author:     "mubanjiu"
 catalog:    true
 tags:
  - 技术
 ---
 
-本docker集群采用docker-engine + flannel + k8s来搭建
-将机器分为master和node两个角色，master上相对node多了registry，etcd，kube-apiserver,kube-scheduler,kube-controller-manager
+>本docker集群采用docker-engine + flannel + k8s来搭建
+>将机器分为master和node两个角色，master上相对node多了registry，etcd，kube-apiserver,kube-scheduler,kube-controller-manager
 
 master为：192.168.1.200
 其他为node

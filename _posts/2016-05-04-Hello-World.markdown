@@ -2,7 +2,7 @@
 layout:     post
 title:      "Hello World"
 subtitle:   "一片新的乐土"
-date:       2016-05-05 13:00:00
+date:       2016-05-04
 author:     "mubanjiu"
 catalog:    true
 tags:
