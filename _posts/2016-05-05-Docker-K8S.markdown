@@ -1,0 +1,469 @@
+---
+layout:     post
+title:      "CentOS7下Docker+k8s集群的安装过程"
+subtitle:   ""
+date:       2016-05-05 10:00:00
+author:     "mubanjiu"
+catalog:    true
+tags:
+ - 技术
+---
+
+本docker集群采用docker-engine + flannel + k8s来搭建
+将机器分为master和node两个角色，master上相对node多了registry，etcd，kube-apiserver,kube-scheduler,kube-controller-manager
+
+master为：192.168.1.200
+其他为node
+
+#1. 安装docker engine.（所有机器）
+1.1 升级所有软件包及系统内核：  `yum update`
+1.2 `reboot`
+1.3 安装docker-engine: `curl -fsSL https://get.docker.com/ | sh`
+1.4 设为开机启动： `systemctl enable docker`
+
+#2. 修改registry （master）
+docker官方的Docker Hub由于各种原因在国内基本无法访问，好在有daocloud.io 提供的国内镜像。
+在/etc/systemd/system/docker.service.d/下新建docker.conf文件，内容为：
+
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/docker daemon -H fd:// --graph="/data/docker-data" --storage-driver=overlay  --registry-mirror=http://78967139.m.daocloud.io --insecure-registry=78967139.m.daocloud.io
+
+重启docker：
+`systemctl daemon-reload`
+`systemctl restart docker`
+
+#3. 安装私有仓库 （master）
+registry v2和v1之间有些区别，v2中如果registry配置了proxy，那这个registry就不能push image上去了。我们建私仓当然得push image上去了，所以私仓和proxy就得分开搭建。私仓用来管理我们自己的私有image，proxy用来加速Registry Hub。
+由于是搭建的内部集群，datacenter以外访问不了，故不考虑安全问题，将registry运行在container中：
+私仓：
+`docker run -d -p 80:5000 -v /data/docker-registry/private:/var/lib/registry  --restart=always --name=registry_private registry:2`
+Proxy:
+`docker run -d -p 5000:5000 -v /data/docker-registry/proxy:/var/lib/registry  -e REGISTRY_PROXY_REMOTEURL=http://78967139.m.daocloud.io  --restart=always --name=registry_proxy registry:2`
+
+
+
+#4. 将docker里面的registry配置从daocloud改成私有仓库 （所有机器）
+修改/etc/systemd/system/docker.service.d/下的docker.conf文件，将相应地址改成私有仓库的地址即可
+
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/docker daemon -H fd:// --graph="/data/docker-data" --storage-driver=overlay  --registry-mirror=http://192.168.1.200:5000 --insecure-registry=192.168.1.200
+
+然后重启docker
+`systemctl daemon-reload`
+`systemctl restart docker`
+
+#5. 安装etcd （master）
+etcd是给flannel和k8s用的配置管理中心，和zookeeper类似。本来想用docker跑etcd，但是由于flannel依赖etcd，而docker会依赖flannel，如果etcd再依赖docker，这样就变成了循环依赖，在启动的时候不知道哪个应该最先启动了。所以etcd还是只能直接跑在宿主机上。只部署了单台的etcd，考虑到HA，未来需扩展成为etcd集群。
+`yum install etcd`
+`systemctl enable etcd`
+修改etcd配置文件/etc/etcd/etcd.conf：
+修改这项：ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379,http://0.0.0.0:4001
+默认是监听的localhost，这样会导致其他机器无法访问etcd
+启动etcd：
+`systemctl start etcd`
+如果其他机器无法连接到etcd，可能是firewall的原因，根据情况配置或者直接关闭，我是直接关闭：`systemctl stop firewalld`
+
+
+
+#6. 安装flannel（所有机器） 
+docker下的网络解决访问主要有calico,flannel,weave,docker overlay.他们的使用和对比可以参考下面这个blog：http://chunqi.li/2015/11/15/Battlefield-Calico-Flannel-Weave-and-Docker-Overlay-Network/
+经过了一些粗浅的比较，在calico和flannel vxlan之间纠结了一下，最后我选择的是flannel vxlan. 选择主要考量是性能和易用性
+使用yum安装flannel: `yum install flannel` ，repository里的并不是最新版本的flannel，如果需要最新版本的可以自己下载安装. 仓库中的flannel的-etcd-prefix默认值是/atomic.io/network 而自己安装的是/coreos.com/network,在写配置到etcd时需注意。
+
+flannel依赖etcd来获取配置和存储网络信息
+使用etcdctl将配置写入etcd:
+`etcdctl set /atomic.io/network/config '{"Network": "10.0.0.0/16","SubnetLen": 24,"SubnetMin": "10.0.1.0","SubnetMax": "10.0.200.0","Backend": {"Type": "vxlan"}}'`
+
+修改flannel配置/etc/sysconfig/flanneld :
+`FLANNEL_ETCD="http://192.168.1.200:2379"
+FLANNEL_OPTIONS="-ip-masq=true"`
+-ip-masq=true 这个参数的目的是让flannel进行ip伪装，而不让docker进行ip伪装。这么做的原因是如果docker进行ip伪装，流量再从flannel出去，其他host上看到的source ip就是flannel的网关ip，而不是docker容器的ip。hadoop和hbase会依赖这个ip进行集群管理，而把flannel的网关当做cluster node将会出现问题。
+参见：https://luqmansahaf.github.io/2015/11/29/on-setting-hadoop-hbase-docker-networking/
+
+关闭firewall：
+`systemctl stop firewalld`
+`systemctl disable firewalld`
+
+启动flanneld
+`systemctl start flanneld`
+添加flanneld为开机启动
+`systemctl enable flanneld`
+
+修改docker启动脚本 /etc/systemd/system/docker.service.d/docker.conf：
+
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/docker daemon -H fd://  $DOCKER_NETWORK_OPTIONS --graph="/data/docker-data" --storage-driver=overlay --registry-mirror=http://192.168.1.200:5000 --insecure-registry=192.168.1.200
+
+重启docker：
+`systemctl deamon-reload`
+`systemctl restart docker`
+通过以下命令检查docker0是否应用到了flanneld获取到的网络配置
+`ip add`
+`docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1450
+        inet 10.0.94.1  netmask 255.255.255.0  broadcast 0.0.0.0
+        inet6 fe80::42:faff:fef6:fe2  prefixlen 64  scopeid 0x20<link>
+        ether 02:42:fa:f6:0f:e2  txqueuelen 0  (Ethernet)
+        RX packets 78103  bytes 150034637 (143.0 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 151950  bytes 160736481 (153.2 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0`
+
+上面的信息说明docker0已经应用了 10.0.94.0/24 这个子网
+也可以通过`systemctl status docker` 查看docker的启动参数中是否有--bip=**的参数来验证
+
+至此所有机器上已经安装好flannel了，为了测试flannel，可以分别在两台host上启动一个centos container，查看各自的ip，以及测试否能够互相ping通。如果可以ping通，则代表flannel能够正常工作了。
+
+#7. 安装kube-node （所有机器）
+kube-node上的组件有kubelet和kube-proxy
+下载kubenetes的最新版本：https://github.com/kubernetes/kubernetes/releases
+解压后再
+`tar -xzf kubernetes/server/kubernetes-server-linux-amd64.tar.gz
+tar -xzf kubernetes/server/kubernetes-salt.tar.gz`
+将kubernets/server/bin下的 kubelet，kube-proxy,kubectl copy 到/usr/local/bin/下面.
+将kubernetes/saltbase/salt/kubelet/kubelet.service copy 到/lib/systemd/system/下面.
+然后在/etc/sysconfig/下创建kubelet文件，内容为：
+
+     DAEMON_ARGS="--api-servers=http://192.168.1.200:8080 --config=/etc/kubernetes/manifests --log-dir=/data/kube-node/ --logtostderr=false --allow-privileged=true --register-node=true --cluster-dns=10.0.201.10 --cluster-domain=test.com --docker-root=/data/docker-data --pod-infra-container-image=woodbird/pause:2.0"
+
+kube-proxy的kube-proxy.service文件kubenetes并未提供，原因可能是kubenetes希望将kube-proxy运行在docker里面，通过kubelet来启动。而我希望和kubelet一致，都作为服务启动。
+在/lib/systemd/system/下创建kube-proxy.service文件，其内容为：
+
+    [Unit]
+    Description=kube-proxy
+    After=kubelet
+    Requires=kubelet
+
+    [Service]
+    ExecStart=/usr/local/bin/kube-proxy --master=http://192.168.1.200:8080     --log-dir=/data/kube-node/
+
+    [Install]
+    WantedBy=multi-user.target
+
+需要将参数里面的kube-master替换成实际的值
+
+最后将服务设置为自动启动，并启动服务
+`systemctl daemon-reload
+systemctl enable kubelet
+systemctl enable kube-proxy
+systemctl start kubelet
+systemctl start kube-proxy`
+
+#8. 安装kube-master
+kube-master的组件有kube-apiserver,kube-scheduler,kube-controller-manager. 将他们以deamon pod的方式运行在docker里面。
+在/etc/kubernetes/manifests/下创建相关pod声明文件：
+kube-apiserver.yaml:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: kube-apiserver
+      namespace: kube-system
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - /hyperkube apiserver
+          --etcd-servers=http://192.168.1.200:4001
+          --service-cluster-ip-range=10.0.201.0/24
+          --insecure-bind-address=0.0.0.0
+          --allow-privileged=true
+        image: woodbird/hyperkube:v1.2.3
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        name: kube-apiserver
+        ports:
+        - containerPort: 443
+          hostPort: 443
+          name: https
+          protocol: TCP
+        - containerPort: 8080
+          hostPort: 8080
+          name: local
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 250m
+        volumeMounts:
+        - mountPath: /srv/kubernetes
+          name: srvkube
+          readOnly: true
+        - mountPath: /etc/ssl
+          name: etcssl
+          readOnly: true
+        - mountPath: /usr/share/ca-certificates
+          name: usrsharecacerts
+          readOnly: true
+        - mountPath: /srv/sshproxy
+          name: srvsshproxy
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /srv/kubernetes
+        name: srvkube
+      - hostPath:
+          path: /etc/ssl
+        name: etcssl
+      - hostPath:
+          path: /usr/share/ca-certificates
+        name: usrsharecacerts
+      - hostPath:
+          path: /srv/sshproxy
+        name: srvsshproxy
+
+kube-sheduler.yaml:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: kube-scheduler
+      namespace: kube-system
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - /hyperkube scheduler
+          --master=192.168.1.200:8080
+          --address=0.0.0.0
+        image: woodbird/hyperkube:v1.2.3
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 10251
+            scheme: HTTP
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        name: kube-scheduler
+        resources:
+          requests:
+            cpu: 100m
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      nodeName: kubernetes-master
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+
+kube-controller-manager.yaml:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: kube-controller
+      namespace: kube-system
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - /hyperkube controller-manager
+          --master=192.168.1.200:8080
+          --cluster-name=fxsoft
+          --cluster-cidr=10.0.0.0/16
+          --address=0.0.0.0
+        image: woodbird/hyperkube:v1.2.3
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 10252
+            scheme: HTTP
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        name: kube-controller-manager
+        resources:
+          limits:
+            cpu: 200m
+          requests:
+            cpu: 200m
+        volumeMounts:
+        - mountPath: /srv/kubernetes
+          name: srvkube
+          readOnly: true
+        - mountPath: /etc/ssl
+          name: etcssl
+          readOnly: true
+        - mountPath: /usr/share/ca-certificates
+          name: usrsharecacerts
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /srv/kubernetes
+        name: srvkube
+      - hostPath:
+          path: /etc/ssl
+        name: etcssl
+      - hostPath:
+          path: /usr/share/ca-certificates
+        name: usrsharecacerts
+
+
+由于GFW，无法访问google的registry，我将google registry上的需要用到的image tag 并push到docker Hub 上了。
+
+#9 安装dns
+官方的dns addon职责是对service进行dns解析，即将service名称解析成为service ip。
+而在我的使用过程中，我还希望这个dns能做到host的解析，即能够将机器名解析成ip，同时也能支持反向解析，即通过ip解析成机器名。所以自己新增了这部分功能,image 是：woodbird/pod2dns:0.5. 这个image中包含一个shell脚本，脚本会从kubernetes apiserver中拿到所有pod的信息，然后写到skydns的etcd当中
+https://github.com/woodbird/pod2sky
+skydns-rc.yaml:
+
+    apiVersion: v1
+    kind: ReplicationController
+    metadata:
+      name: kube-dns-v10
+      namespace: kube-system
+      labels:
+        k8s-app: kube-dns
+        version: v10
+        kubernetes.io/cluster-service: "true"
+    spec:
+      replicas: 1
+      selector:
+        k8s-app: kube-dns
+        version: v10
+      template:
+        metadata:
+          labels:
+            k8s-app: kube-dns
+            version: v10
+            kubernetes.io/cluster-service: "true"
+        spec:
+          containers:
+          - name: etcd
+            image: woodbird/etcd:2.0.9
+            resources:
+              # keep request = limit to keep this container in guaranteed class
+              limits:
+                cpu: 100m
+                memory: 50Mi
+              requests:
+                cpu: 100m
+                memory: 50Mi
+            command:
+            - /usr/local/bin/etcd
+            - -data-dir
+            - /var/etcd/data
+            - -listen-client-urls
+            - http://127.0.0.1:2379,http://127.0.0.1:4001
+            - -advertise-client-urls
+            - http://127.0.0.1:2379,http://127.0.0.1:4001
+            - -initial-cluster-token
+            - skydns-etcd
+            volumeMounts:
+            - name: etcd-storage
+              mountPath: /var/etcd/data
+          - name: kube2sky
+            image: woodbird/kube2sky:1.12
+            resources:
+              # keep request = limit to keep this container in guaranteed class
+              limits:
+                cpu: 100m
+                memory: 50Mi
+              requests:
+                cpu: 100m
+                memory: 50Mi
+            command:
+            - /kube2sky
+            args:
+            - -domain=fxsoft.com
+            - -kube_master_url=http://192.168.1.200:8080
+          - name: pod2sky
+            image: woodbird/pod2sky:latest
+            resources:
+              # keep request = limit to keep this container in guaranteed class
+              limits:
+                cpu: 100m
+                memory: 50Mi
+              requests:
+                cpu: 100m
+                memory: 50Mi
+            command:
+            - /bin/bash
+            - -c
+            - /usr/bin/schedulePod2sky.sh
+              --cluster_domain=test.com 
+              --kube_master_url=http://192.168.1.200:8080
+          - name: skydns
+            image: woodbird/skydns:2015-10-13-8c72f8c
+            resources:
+              # keep request = limit to keep this container in guaranteed class
+              limits:
+                cpu: 100m
+                memory: 50Mi
+              requests:
+                cpu: 100m
+                memory: 50Mi
+            command:
+            - /skydns
+            args:
+            - -machines=http://127.0.0.1:4001
+            - -addr=0.0.0.0:53
+            - -ns-rotate=false
+            - -domain=test.com
+            - -nameservers=192.168.1.1:53
+            ports:
+            - containerPort: 53
+              name: dns
+              protocol: UDP
+            - containerPort: 53
+              name: dns-tcp
+              protocol: TCP
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 30
+              timeoutSeconds: 5
+            readinessProbe:
+              httpGet:
+                path: /healthz
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 1
+              timeoutSeconds: 5
+          - name: healthz
+            image: woodbird/exechealthz:1.0
+            resources:
+              # keep request = limit to keep this container in guaranteed class
+              limits:
+                cpu: 10m
+                memory: 20Mi
+              requests:
+                cpu: 10m
+                memory: 20Mi
+            command:
+            - /exechealthz
+            args:
+            - -cmd=nslookup kubernetes.default.svc.fxsoft.com 127.0.0.1 >/dev/null
+            - -port=8080
+            ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumes:
+          - name: etcd-storage
+            emptyDir: {}
+          dnsPolicy: Default  # Don't use cluster DNS.
+
+
+
+至此整个集群就基本搭建完成了。

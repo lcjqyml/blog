@@ -5,7 +5,8 @@ subtitle:   "一片新的乐土"
 date:       2016-05-05 13:00:00
 author:     "mubanjiu"
 catalog:    true
-
+tags:
+ - 随笔
 ---
 
 ## 前言
