@@ -15,13 +15,13 @@ tags:
 master为：192.168.1.200
 其他为node
 
-#1. 安装docker engine.（所有机器）
+##1. 安装docker engine.（所有机器）
 1.1 升级所有软件包及系统内核：  `yum update`
 1.2 `reboot`
 1.3 安装docker-engine: `curl -fsSL https://get.docker.com/ | sh`
 1.4 设为开机启动： `systemctl enable docker`
 
-#2. 修改registry （master）
+##2. 修改registry （master）
 docker官方的Docker Hub由于各种原因在国内基本无法访问，好在有daocloud.io 提供的国内镜像。
 在/etc/systemd/system/docker.service.d/下新建docker.conf文件，内容为：
 
@@ -33,7 +33,7 @@ docker官方的Docker Hub由于各种原因在国内基本无法访问，好在�
 `systemctl daemon-reload`
 `systemctl restart docker`
 
-#3. 安装私有仓库 （master）
+##3. 安装私有仓库 （master）
 registry v2和v1之间有些区别，v2中如果registry配置了proxy，那这个registry就不能push image上去了。我们建私仓当然得push image上去了，所以私仓和proxy就得分开搭建。私仓用来管理我们自己的私有image，proxy用来加速Registry Hub。
 由于是搭建的内部集群，datacenter以外访问不了，故不考虑安全问题，将registry运行在container中：
 私仓：
@@ -43,7 +43,7 @@ Proxy:
 
 
 
-#4. 将docker里面的registry配置从daocloud改成私有仓库 （所有机器）
+##4. 将docker里面的registry配置从daocloud改成私有仓库 （所有机器）
 修改/etc/systemd/system/docker.service.d/下的docker.conf文件，将相应地址改成私有仓库的地址即可
 
     [Service]
@@ -54,7 +54,7 @@ Proxy:
 `systemctl daemon-reload`
 `systemctl restart docker`
 
-#5. 安装etcd （master）
+##5. 安装etcd （master）
 etcd是给flannel和k8s用的配置管理中心，和zookeeper类似。本来想用docker跑etcd，但是由于flannel依赖etcd，而docker会依赖flannel，如果etcd再依赖docker，这样就变成了循环依赖，在启动的时候不知道哪个应该最先启动了。所以etcd还是只能直接跑在宿主机上。只部署了单台的etcd，考虑到HA，未来需扩展成为etcd集群。
 `yum install etcd`
 `systemctl enable etcd`
@@ -67,7 +67,7 @@ etcd是给flannel和k8s用的配置管理中心，和zookeeper类似。本来想
 
 
 
-#6. 安装flannel（所有机器） 
+##6. 安装flannel（所有机器） 
 docker下的网络解决访问主要有calico,flannel,weave,docker overlay.他们的使用和对比可以参考下面这个blog：http://chunqi.li/2015/11/15/Battlefield-Calico-Flannel-Weave-and-Docker-Overlay-Network/
 经过了一些粗浅的比较，在calico和flannel vxlan之间纠结了一下，最后我选择的是flannel vxlan. 选择主要考量是性能和易用性
 使用yum安装flannel: `yum install flannel` ，repository里的并不是最新版本的flannel，如果需要最新版本的可以自己下载安装. 仓库中的flannel的-etcd-prefix默认值是/atomic.io/network 而自己安装的是/coreos.com/network,在写配置到etcd时需注意。
@@ -116,7 +116,7 @@ FLANNEL_OPTIONS="-ip-masq=true"`
 
 至此所有机器上已经安装好flannel了，为了测试flannel，可以分别在两台host上启动一个centos container，查看各自的ip，以及测试否能够互相ping通。如果可以ping通，则代表flannel能够正常工作了。
 
-#7. 安装kube-node （所有机器）
+##7. 安装kube-node （所有机器）
 kube-node上的组件有kubelet和kube-proxy
 下载kubenetes的最新版本：https://github.com/kubernetes/kubernetes/releases
 解压后再
@@ -151,7 +151,7 @@ systemctl enable kube-proxy
 systemctl start kubelet
 systemctl start kube-proxy`
 
-#8. 安装kube-master
+##8. 安装kube-master
 kube-master的组件有kube-apiserver,kube-scheduler,kube-controller-manager. 将他们以deamon pod的方式运行在docker里面。
 在/etc/kubernetes/manifests/下创建相关pod声明文件：
 kube-apiserver.yaml:
@@ -320,7 +320,7 @@ kube-controller-manager.yaml:
 
 由于GFW，无法访问google的registry，我将google registry上的需要用到的image tag 并push到docker Hub 上了。
 
-#9 安装dns
+##9 安装dns
 官方的dns addon职责是对service进行dns解析，即将service名称解析成为service ip。
 而在我的使用过程中，我还希望这个dns能做到host的解析，即能够将机器名解析成ip，同时也能支持反向解析，即通过ip解析成机器名。所以自己新增了这部分功能,image 是：woodbird/pod2dns:0.5. 这个image中包含一个shell脚本，脚本会从kubernetes apiserver中拿到所有pod的信息，然后写到skydns的etcd当中
 https://github.com/woodbird/pod2sky
@@ -351,7 +351,7 @@ skydns-rc.yaml:
           - name: etcd
             image: woodbird/etcd:2.0.9
             resources:
-              # keep request = limit to keep this container in guaranteed class
+              ## keep request = limit to keep this container in guaranteed class
               limits:
                 cpu: 100m
                 memory: 50Mi
@@ -374,7 +374,7 @@ skydns-rc.yaml:
           - name: kube2sky
             image: woodbird/kube2sky:1.12
             resources:
-              # keep request = limit to keep this container in guaranteed class
+              ## keep request = limit to keep this container in guaranteed class
               limits:
                 cpu: 100m
                 memory: 50Mi
@@ -389,7 +389,7 @@ skydns-rc.yaml:
           - name: pod2sky
             image: woodbird/pod2sky:latest
             resources:
-              # keep request = limit to keep this container in guaranteed class
+              ## keep request = limit to keep this container in guaranteed class
               limits:
                 cpu: 100m
                 memory: 50Mi
@@ -405,7 +405,7 @@ skydns-rc.yaml:
           - name: skydns
             image: woodbird/skydns:2015-10-13-8c72f8c
             resources:
-              # keep request = limit to keep this container in guaranteed class
+              ## keep request = limit to keep this container in guaranteed class
               limits:
                 cpu: 100m
                 memory: 50Mi
@@ -444,7 +444,7 @@ skydns-rc.yaml:
           - name: healthz
             image: woodbird/exechealthz:1.0
             resources:
-              # keep request = limit to keep this container in guaranteed class
+              ## keep request = limit to keep this container in guaranteed class
               limits:
                 cpu: 10m
                 memory: 20Mi
@@ -462,7 +462,7 @@ skydns-rc.yaml:
           volumes:
           - name: etcd-storage
             emptyDir: {}
-          dnsPolicy: Default  # Don't use cluster DNS.
+          dnsPolicy: Default  ## Don't use cluster DNS.
 
 
 
