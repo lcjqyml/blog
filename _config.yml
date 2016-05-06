@@ -8,7 +8,7 @@ keyword: "许敏,Java,Docker,Hadoop,淘宝"
 url: "http://mubanjiu.com"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
-
+timezone: Asia/Shanghai
 
 # SNS settings
 RSS: false
