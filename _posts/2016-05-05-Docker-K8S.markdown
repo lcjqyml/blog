@@ -98,7 +98,7 @@ FLANNEL_OPTIONS="-ip-masq=true"`
     ExecStart=/usr/bin/docker daemon -H fd://  $DOCKER_NETWORK_OPTIONS --graph="/data/docker-data" --storage-driver=overlay --registry-mirror=http://192.168.1.200:5000 --insecure-registry=192.168.1.200
 
 重启docker：  
-`systemctl deamon-reload`  
+`systemctl daemon-reload`  
 `systemctl restart docker`  
 通过以下命令检查docker0是否应用到了flanneld获取到的网络配置  
 `ip add`  
@@ -152,7 +152,7 @@ kube-proxy的kube-proxy.service文件kubenetes并未提供，原因可能是kube
 `systemctl start kube-proxy`
 
 # 8.安装kube-master(master)  
-kube-master的组件有kube-apiserver,kube-scheduler,kube-controller-manager. 将他们以deamon pod的方式运行在docker里面。  
+kube-master的组件有kube-apiserver,kube-scheduler,kube-controller-manager. 将他们以daemon pod的方式运行在docker里面。  
 在/etc/kubernetes/manifests/下创建相关pod声明文件：  
 kube-apiserver.yaml:  
 
