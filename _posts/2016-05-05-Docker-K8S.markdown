@@ -79,6 +79,7 @@ flannel依赖etcd来获取配置和存储网络信息
 修改flannel配置/etc/sysconfig/flanneld :  
 `FLANNEL_ETCD="http://192.168.1.200:2379"`
 `FLANNEL_OPTIONS="-ip-masq=true"`  
+
 -ip-masq=true 这个参数的目的是让flannel进行ip伪装，而不让docker进行ip伪装。这么做的原因是如果docker进行ip伪装，流量再从flannel出去，其他host上看到的source ip就是flannel的网关ip，而不是docker容器的ip。hadoop和hbase会依赖这个ip进行集群管理，而把flannel的网关当做cluster node将会出现问题。  
 参见：https://luqmansahaf.github.io/2015/11/29/on-setting-hadoop-hbase-docker-networking/  
 
