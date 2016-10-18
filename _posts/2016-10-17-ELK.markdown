@@ -72,11 +72,15 @@ tags:
 
 #### 安装X-Pack插件
 其为es推出的包含安全，监控，告警等插件的包
+
 Take the Elastic Stack to the next level with Shield (security), Marvel (monitoring), Watcher (alerting), Graph, and reporting. 
 
 在elasticsearch es_home下执行：bin/elasticsearch-plugin install x-pack
+
 重启es
+
 在kibana kibana_home下执行：bin/kibana-plugin install x-pack
+
 重启kibana
 
 访问kibana，默认账号是elastic/changeme 然后新建一个logstash账号给logstash使用
@@ -84,7 +88,9 @@ Take the Elastic Stack to the next level with Shield (security), Marvel (monitor
 #### 部署logstash
 
 logstash的配置文件位于/opt/logstash/logstash.conf
+
 准备一个access.log用于测试，将该文件也置于/opt/logstash/下
+
 内容为：
 
     #character at the beginning of a line indicates a comment. Use
@@ -164,7 +170,7 @@ logstash的配置文件：
 
 kibana timelion的查询：
 
-load: `.es(collectd_type:load,metric='avg:shortterm').label("1m"),.es(collectd_type:load,metric='avg:midterm').label("5m"),.es(collectd_type:load,metric='avg:longterm').label("15m").title('load')`
+load: `.es(collectd_type:load,metric='avg:shortterm').label("1m"), .es(collectd_type:load,metric='avg:midterm').label("5m"), .es(collectd_type:load,metric='avg:longterm').label("15m").title('load')`
 
 cpu: `.es('collectd_type:cpu AND type_instance:user',metric='avg:value').derivative().label("user"),.es('collectd_type:cpu AND type_instance:idle',metric='avg:value').derivative().label("idle").hide(),.es('collectd_type:cpu AND type_instance:system',metric='avg:value').derivative().label("system"),.es('collectd_type:cpu AND type_instance:wait',metric='avg:value').derivative().label("wait").title("cpu")`
 
