@@ -2,11 +2,11 @@
 layout:     post
 title:      "用ELK搭建监控系统"
 subtitle:   ""
-date:       2016-10-18
+date:       2016-10-17
 author:     "mubanjiu"
 catalog:    true
 tags:
- - 技术,ELK,devops
+ - 技术 ELK devops
 ---
 
 # 用ELK搭建监控系统
