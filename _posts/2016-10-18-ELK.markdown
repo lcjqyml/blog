@@ -1,8 +1,8 @@
----
+﻿---
 layout:     post
 title:      "用ELK搭建监控系统"
 subtitle:   ""
-date:       2016-10-18
+date:       2016-10-17
 author:     "mubanjiu"
 catalog:    true
 tags:
@@ -118,7 +118,7 @@ hosts和user/password需设置为真实的值
 
 logstash起来后，可通过kibana页面直接查看access log的情况
 
-![image](/images/elk/kibana-1.png)
+![image](/img/elk/kibana-1.png)
 
 ### 使用collectd+logstash+es+kibana+timelion来完成对系统的基础监控
 
@@ -172,5 +172,5 @@ network: `.es('collectd_type:if_packets AND plugin_instance:eth0',metric='avg:rx
 
 memory: `.es('collectd_type:memory AND type_instance:used',metric='avg:value').divide(1000000).label("used(MB)"),.es('collectd_type:memory AND type_instance:free',metric='avg:value').divide(1000000).label("free(MB)"),.es('collectd_type:memory AND type_instance:cached',metric='avg:value').divide(1000000).label("cached(MB)"),.es('collectd_type:memory AND type_instance:buffered',metric='avg:value').divide(1000000).label("buffered(MB)").title(memory)`
 
-![image](/images/elk/kibana-2.png)
+![image](/img/elk/kibana-2.png)
 
