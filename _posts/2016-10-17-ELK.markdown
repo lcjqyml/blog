@@ -6,7 +6,9 @@ date:       2016-10-17
 author:     "mubanjiu"
 catalog:    true
 tags:
- - 技术|ELK|devops
+ - 技术
+ - ELK
+ - devops
 ---
 
 # 用ELK搭建监控系统
@@ -180,3 +182,52 @@ memory: `.es('collectd_type:memory AND type_instance:used',metric='avg:value').d
 
 ![image](/img/elk/kibana-2.png)
 
+
+### 使用logstash-logback-encoder+logstash+es+kibana 来完成对系统日志的汇总和查询
+
+logstash-logback-encoder是一个应用内的logback appender，其将logback的日志（json格式）通过UDP/TCP发送给logstash，logstash将日志存储到es中，kibana 从es中查询日志数据
+  
+应用内添加如下依赖：
+
+    <dependency>
+       <groupId>net.logstash.logback</groupId>
+       <artifactId>logstash-logback-encoder</artifactId>
+       <version>4.5.1</version>
+    </dependency>
+
+在logback.xml中添加将日志发送给logstash的appender
+
+    <appender name="stash" class="net.logstash.logback.appender.LogstashSocketAppender">
+      <host>logstashServer</host>
+      <!-- port is optional (default value shown) -->
+      <port>514</port>
+      <customFields>{"appname":"myWebservice"}</customFields>
+    </appender>
+    <root level="all">
+      <appender-ref ref="stash" />
+    </root>
+
+logstash的配置片段：
+
+    #character at the beginning of a line indicates a comment. Use
+    # comments to describe your configuration.
+    input {
+        udp {
+            port => 25826
+            buffer_size => 1452
+            workers => 3          # Default is 2
+            queue_size => 30000   # Default is 2000
+        }
+    }
+    
+    
+    output {
+      elasticsearch {
+        hosts => [ "192.168.99.100:9200" ]
+        user => logstash
+        password => logstash
+      }
+    }
+
+
+![image](/img/elk/kibana-3.png)

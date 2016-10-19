@@ -6,7 +6,8 @@ date:       2016-05-05
 author:     "mubanjiu"
 catalog:    true
 tags:
- - 技术|devops
+ - 技术
+ - devops
 ---
 
 >本docker集群采用docker-engine + flannel + k8s来搭建
