@@ -63,7 +63,7 @@ ba_track_id: 132637c33edd2ef319958568e54f70be
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "生命就如狂风中倔强燃烧着的蜡烛，随时都有可能熄灭。所以，对于你所向往的，尽管去追寻吧！就算失败也没什么，至少你不会后悔..."
-sidebar-avatar: /img/avatar.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/me.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
