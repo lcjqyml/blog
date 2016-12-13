@@ -22,15 +22,18 @@ GitLab的docker镜像早已有人做好了，并且维护相当不错。大家�
 使用如下命令可以使Docker下载对应版本的GitLab镜像:
 
     docker pull sameersbn/gitlab:7.5.3
+
 上面的命令下载7.5.3版的GitLab，如果想下载最新版本，可以输入以下命令:
 
     docker pull sameersbn/gitlab:latest
+
 待下载完成后就算完成安装了。
 也可以Clone刚才的提到的仓库，然后在本机上build镜像：
 
     git clone https://github.com/sameersbn/docker-gitlab.git
     cd docker-gitlab
     docker build --tag="$USER/gitlab" .
+
 注意上面最后一行命令结尾有一个"."符号，不要掉了。
 
 # 3. 安装PostgreSQL
@@ -39,13 +42,16 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 首先输入以下命令下载PostgreSQL镜像：
 
     docker pull sameersbn/postgresql:latest
+
 然后我们要为数据库默认的表空间建立目录以存放数据：
 
     mkdir -p /opt/postgresql/data
+
 这里/opt/postgresql/data部分可以替换成你自己希望建立的地址。
 如果是使用SELinux，那么还需要改变一下这个目录的安全设置：
 
     sudo chcon -Rt svirt_sandbox_file_t /opt/postgresql/data
+
 如果没有使用SELinux，可以跳过上面一条命令。
 
 最后使用以下命令行启动数据库：
@@ -56,12 +62,14 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
         --env 'DB_EXTENSION=pg_trgm' \
         --volume /srv/docker/gitlab/postgresql:/var/lib/postgresql \
         sameersbn/postgresql:latest
+
 这里，"--env"选项后面的内容请不要随意变更，这里的配置都是GitLab默认的数据库配置，如果没有在后面GitLab镜像启动的设置里面做相应的修改的话，这里的修改会让程序无法正常运行。
 
 # 4. 安装Redis
 同样，我们可以使用docker来安装Redis：
 
     docker pull sameersbn/redis:latest
+
 然后启动它:
 
     docker run --name=gitlab-redis -d sameersbn/redis:latest
@@ -71,10 +79,12 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 
     mkdir -p /opt/gitlab/data
     mkdir -p /opt/gitlab/backups
+
 同样，如果使用SELinux，需要修改目录的安全配置:
 
     sudo chcon -Rt svirt_sandbox_file_t /opt/gitlab/data
     sudo chcon -Rt svirt_sandbox_file_t /opt/gitlab/backups
+
 在完成上面所有的步骤以后，我们可以用以下命令启动GitLab：
 
     docker run --name gitlab -d \
@@ -88,6 +98,7 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
         --volume /opt/gitlab/data:/home/git/data \
         --volume /opt/gitlab/backups:/home/git/data/backups \
         sameersbn/gitlab:latest
+
 上面的命令将使用10080作为GitLab的Web访问端口，10022将作为ssh push和pull代码的端口。
 在本地可以使用浏览器打开http://localhost:10080 来访问GitLab，初始登录网站使用root账户，用户名为root，密码为：5iveL!fe，登录后需要立即修改密码。
 

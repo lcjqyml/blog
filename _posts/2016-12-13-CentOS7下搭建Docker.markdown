@@ -18,14 +18,18 @@ tags:
     gpgcheck=1
     gpgkey=https://yum.dockerproject.org/gpg
     EOF
+
 # 2. 执行安装命令
     yum install docker-engine
+
 # 3. 设置自启动
     systemctl enable docker
+
 # 4. 登录daocload.io并配置获取加速器
 >由于国内各种墙，故需要加速器中转镜像服务器
 
     curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://9e43f463.m.daocloud.io
+
 # 5. 启动docker并测试
     systemctl start docker
     docker run --rm hello-world
