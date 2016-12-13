@@ -1,14 +1,14 @@
 {
-    "name": "mubanjiu-blog",
-    "title": "Mubanjiu Blog",
-    "author": "mubanjiu <woodbird456@gmail.com>",
-    "version": "1.6.0",
-    "homepage": "http://mubanjiu.com",
+    "name": "milin-blog",
+    "title": "Milin Blog",
+    "author": "Milin <417156994@qq.com>",
+    "version": "1.6.1",
+    "homepage": "http://space.milin.space",
     "repository": {
         "type": "git",
-        "url": "https://github.com/woodbird/woodbird.github.io"
+        "url": "https://github.com/lcjqyml/blog"
     },
-    "bugs": "https://github.com/woodbird/woodbird.github.io/issues",
+    "bugs": "https://github.com/lcjqyml/blog/issues",
     "devDependencies": {
         "grunt": "~0.4.5",
         "grunt-contrib-less": "~0.11.4",

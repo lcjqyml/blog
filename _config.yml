@@ -1,23 +1,18 @@
 # Site settings
-title: 木斑鸠的博客
-SEOTitle: 木斑鸠的博客 | mubanjiu Blog
+title: 密林的博客
+SEOTitle: 密林的博客 | milin Blog
 header-img: img/home-bg.jpg
-email: woodbird456@gmail.com
-description: "许敏：系统架构师"
-keyword: "许敏,Java,Docker,Hadoop,淘宝"
-url: "http://mubanjiu.com"              # your host, for absolute URL
+email: 417156994@qq.com
+description: "廖长军：高级工程师"
+keyword: "廖长军,Java,Docker,Spark,Hadoop"
+url: "http://blog.milin.space"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 timezone: Asia/Shanghai
 
 # SNS settings
 RSS: false
-#weibo_username:     mubanjiu
-#zhihu_username:     mubanjiu
-github_username:    woodbird
-#twitter_username:  woodbird
-#facebook_username:  woodbird
-# linkedin_username:  firstname-lastname-idxxxx
+github_username:    lcjqyml
 
 
 
@@ -48,10 +43,10 @@ kramdown:
 
 
 # Disqus settings
-#disqus_username: mubanjiu
+#disqus_username: milin
 
 # Duoshuo settings
-duoshuo_username: mubanjiu
+duoshuo_username: milin
 # Share component is depend on Comment so we can NOT use share only.
 duoshuo_share: true                     # set to false if you want to use Comment without Sharing
 
@@ -67,7 +62,7 @@ ba_track_id: 132637c33edd2ef319958568e54f70be
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "享受着一天比一天更加强大的感觉，享受着美好的生活，一切都很好，真好....."
+sidebar-about-description: "生命就如狂风中倔强燃烧着的蜡烛，随时都有可能熄灭。所以，对于你所向往的，尽管去追寻吧！就算失败也没什么，至少你不会后悔..."
 sidebar-avatar: /img/avatar.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
@@ -82,6 +77,6 @@ featured-condition-size: 1              # A tag will be featured if the size of 
 friends: [
     {
         title: "广告位招租",
-        href: "http://mubanjiu.com"
+        href: "http://blog.milin.space"
     }
 ]
