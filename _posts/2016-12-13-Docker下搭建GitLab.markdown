@@ -114,8 +114,8 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 GitLab的环境变量配置比较多，这里列举一下比较重要的GitLab的环境变量：
 
 * GITLAB_HOST: 这个是GitLab服务器的hostname，你需要将此设定为网站的域名或者ip（不带端口号），默认值为localhost，这个值会被GitLab用来生成repo的链接，所以必须要设置。否则，在创建的repo中，会发现所有的repo链接都是以localhost为hostname。
-* GITLAB_PORT GitLab网站的访问端口，这里的设置要结合端口转发一起设置，否则会导致网站无法访问，默认值为80
-* GITLAB_SSH_PORT GitLab的SSH代码提交方式使用的SSH端口，这里的设置要结合端口转发一起设置，否则会导致代码无法提交，默认值为22。如果是在VPS上部署，这个值请使用别的端口，比如上面提到的10022端口，否则会与VPS原本的SSH端口产生冲突，造成SSH无法登录VPS
-* GITLAB_BACKUPS GitLab的自动备份配置，有disable, daily, weekly, monthly四个可选值，默认为disable。建议打开自动备份
-* GITLAB_BACKUP_DIR GitLab自动备份目录，默认值为/home/git/data/backups
+* GITLAB_PORT: GitLab网站的访问端口，这里的设置要结合端口转发一起设置，否则会导致网站无法访问，默认值为80
+* GITLAB_SSH_PORT: GitLab的SSH代码提交方式使用的SSH端口，这里的设置要结合端口转发一起设置，否则会导致代码无法提交，默认值为22。如果是在VPS上部署，这个值请使用别的端口，比如上面提到的10022端口，否则会与VPS原本的SSH端口产生冲突，造成SSH无法登录VPS
+* GITLAB_BACKUPS: GitLab的自动备份配置，有disable, daily, weekly, monthly四个可选值，默认为disable。建议打开自动备份
+* GITLAB_BACKUP_DIR: GitLab自动备份目录，默认值为/home/git/data/backups
 
