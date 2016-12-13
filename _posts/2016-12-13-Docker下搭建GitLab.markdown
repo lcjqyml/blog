@@ -91,9 +91,9 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
         --link gitlab-postgresql:postgresql --link gitlab-redis:redisio \
         --publish 10022:22 --publish 10080:80 \
         --env 'GITLAB_PORT=10080' --env 'GITLAB_SSH_PORT=10022' \
-        --env 'GITLAB_SECRETS_DB_KEY_BASE=XelxUDCOCOWGP7Jda5tS2FcO0eJ6MXS1cOaBJp9Af3Rzr7fwY7WplkPTXSEv2t7W' \
-        --env 'GITLAB_SECRETS_SECRET_KEY_BASE=Hc31cnar5CnqiNMACuOT05x3Vep4XgYBMCr67QJ3NAG8JDimvsUYktRFkuyGXoOw' \
-        --env 'GITLAB_SECRETS_OTP_KEY_BASE=etObRUMni2nd8HRWaVKcxXY7V1TN1cHCvkZuvBlwCQTXQ0OOWG5iFx1T1lRResSh' \
+        --env 'GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alpha-numeric-string' \
+        --env 'GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alpha-numeric-string' \
+        --env 'GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alpha-numeric-string' \
         --env 'GITLAB_HOST=192.168.2.201' \
         --volume /opt/gitlab/data:/home/git/data \
         --volume /opt/gitlab/backups:/home/git/data/backups \
@@ -108,6 +108,8 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
     -e：配置GitLab运行的环境变量，这个参数很重要，具体有哪些环境变量，后面列举
     -p: 端口转发规则
     -v: 共享目录挂载，即docker容器内外数据共享
+
+>特别注意：以上命令中：`long-and-random-alpha-numeric-string`为自己产生的随机密码，可以自己随机生成填上去, 官方推荐64位随机密码
 
 GitLab的环境变量配置比较多，这里列举一下比较重要的GitLab的环境变量：
 
