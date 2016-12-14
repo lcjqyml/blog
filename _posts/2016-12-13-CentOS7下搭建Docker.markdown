@@ -1,12 +1,12 @@
 ---
 layout:     post
-title:      "CentOS7下搭建docker"
+title:      "CentOS7下搭建Docker"
 date:       2016-12-13
 author:     "Milin"
 catalog:    true
 tags:
  - 技术
- - docker
+ - Docker
 ---
 
 # 1. 增加yum仓库
@@ -30,6 +30,6 @@ tags:
 
     curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://9e43f463.m.daocloud.io
 
-# 5. 启动docker并测试
+# 5. 启动Docker并测试
     systemctl start docker
     docker run --rm hello-world
