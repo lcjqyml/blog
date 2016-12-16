@@ -121,6 +121,6 @@ GitLab的环境变量配置比较多，这里列举一下比较重要的GitLab�
 * GITLAB_BACKUPS: GitLab的自动备份配置，有disable, daily, weekly, monthly四个可选值，默认为disable。建议打开自动备份
 * GITLAB_BACKUP_DIR: GitLab自动备份目录，默认值为/home/git/data/backups
 
->####参考文档：
-> 1. https://segmentfault.com/a/1190000002421271
-> 2. https://github.com/sameersbn/docker-gitlab#installation
+###参考文档
+1. https://segmentfault.com/a/1190000002421271
+2. https://github.com/sameersbn/docker-gitlab#installation
