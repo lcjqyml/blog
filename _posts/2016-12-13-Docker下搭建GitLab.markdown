@@ -10,7 +10,7 @@ tags:
  - GitLab
 ---
 
-# 1. Docker下部署GitLab
+# 1. 引言
 
 Docker用来隔离应用还是很方便的，一来本身的操作较为简单，二来资源占用也比虚拟机要小得多，三来也较为安全，因为像数据库这样的应用不会再全局暴露端口，同时应用间的通信通过加密和端口转发，更加安全。
 
@@ -60,6 +60,7 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
         --env 'DB_NAME=gitlabhq_production' \
         --env 'DB_USER=gitlab' --env 'DB_PASS=password' \
         --env 'DB_EXTENSION=pg_trgm' \
+        --restart on-failure:5 \
         --volume /srv/docker/gitlab/postgresql:/var/lib/postgresql \
         sameersbn/postgresql:latest
 
@@ -72,7 +73,7 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 
 然后启动它:
 
-    docker run --name=gitlab-redis -d sameersbn/redis:latest
+    docker run --name=gitlab-redis -d --restart on-failure:5 sameersbn/redis:latest
 
 # 5. 启动GitLab
 在最终启动GitLab之前，我们还需要为GitLab创建一个目录用来存放提交上来的代码，docker-gitlab内部使用/home/git/data这个目录存放代码，我们在容器外部创建一个目录然后在启动的时候挂载到这个路径即可：
@@ -87,17 +88,18 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 
 在完成上面所有的步骤以后，我们可以用以下命令启动GitLab：
 
-    docker run --name gitlab -d \
-        --link gitlab-postgresql:postgresql --link gitlab-redis:redisio \
-        --publish 10022:22 --publish 10080:80 \
-        --env 'GITLAB_PORT=10080' --env 'GITLAB_SSH_PORT=10022' \
-        --env 'GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alpha-numeric-string' \
-        --env 'GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alpha-numeric-string' \
-        --env 'GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alpha-numeric-string' \
-        --env 'GITLAB_HOST=192.168.2.201' \
-        --volume /opt/gitlab/data:/home/git/data \
-        --volume /opt/gitlab/backups:/home/git/data/backups \
-        sameersbn/gitlab:latest
+        docker run --name gitlab -d \
+            --restart on-failure:5 \
+            --link gitlab-postgresql:postgresql --link gitlab-redis:redisio \
+            --publish 10022:22 --publish 10080:80 \
+            --env 'GITLAB_PORT=10080' --env 'GITLAB_SSH_PORT=10022' \
+            --env 'GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alpha-numeric-string' \
+            --env 'GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alpha-numeric-string' \
+            --env 'GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alpha-numeric-string' \
+            --env 'GITLAB_HOST=192.168.2.201' \
+            --volume /opt/gitlab/data:/home/git/data \
+            --volume /opt/gitlab/backups:/home/git/data/backups \
+            sameersbn/gitlab:latest
 
 上面的命令将使用10080作为GitLab的Web访问端口，10022将作为ssh push和pull代码的端口。
 在本地可以使用浏览器打开http://localhost:10080 来访问GitLab，初始登录网站使用root账户，用户名为root，密码为：5iveL!fe，登录后需要立即修改密码。
