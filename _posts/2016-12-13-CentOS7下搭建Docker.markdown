@@ -25,10 +25,12 @@ tags:
 # 3. 设置自启动
     systemctl enable docker
 
-# 4. 登录daocload.io并配置获取加速器
+# 4. 注册并登录daocload.io获取加速器
 >由于国内各种墙，故需要加速器中转镜像服务器
 
-    curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://9e43f463.m.daocloud.io
+    curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://*********.m.daocloud.io
+
+`以上命令中的加速器mirror url(http://*********.m.daocloud.io)需要自行注册获取`
 
 # 5. 启动Docker并测试
     systemctl start docker
