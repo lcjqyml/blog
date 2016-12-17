@@ -34,6 +34,7 @@ tags:
 
 # 2. 配置Swarm manager
 在manager上执行以下命令：
+
     docker swarm init --advertise-addr 192.168.2.201
 
 执行结果：
@@ -55,7 +56,7 @@ tags:
 * 拥有3个manager的Docker集群可以容忍1台manger不可用
 * 拥有N个manager的Docker集群可以容忍(N-1)/2台manger不可用
 * `Swarm官方推荐一个Docker集群包含7个manager`
-* 为了保证集群安全，建议每隔一段时间更换join-token，命令：docker swarm join-token  --rotate [worker|manager]
+* 为了保证集群安全，建议每隔一段时间更换join-token，命令：` docker swarm join-token  --rotate [worker|manager] `
 
 # 3. 添加Swarm worker
 在以上两台worker上分别执行以下命令
@@ -65,7 +66,7 @@ tags:
     192.168.2.201:2377
 
 # 4. Docker Swarm常用命令
-> 以下命令在manager上执行
+`以下命令在manager上执行`
 
     docker node ls #列出当前集群节点
     docker node promote worker1 #将worker1升级为manager
