@@ -35,3 +35,29 @@ tags:
 # 5. 启动Docker并测试
     systemctl start docker
     docker run --rm hello-world
+
+# 6. 搭建Docker私仓
+执行以下命令获取对应image并运行registry
+    docker run -d --name registry --restart=always -v /tmp/registry:/tmp/registry -p 5000:5000 registry
+
+`注意：`*由于新版本docker向registry交互使用https协议，故需要以下二选一的配置*
+1. 在docker启动参数中加入此registry相关配置，使用http协议，需要在/etc/docker/daemon.json中加入
+    {
+        ...
+        "insecure-registries":["your-registry-host:5000"]
+    }
+
+2. 配置私仓使用https协议，参考<https://docs.docker.com/registry/insecure/>
+
+### 与私仓相关操作
+向私仓push image：
+    docker build -t your-image:latest
+    docker tag your-image your-registry-host:5000/library/your-image:latest
+    docker push your-registry-host:5000/library/your-image:latest
+
+从私仓pull image：
+    docker pull your-registry-host:5000/library/your-image:latest
+
+运行私仓image：
+    docker run -d --restart=always your-registry-host:5000/library/your-image:latest
+
