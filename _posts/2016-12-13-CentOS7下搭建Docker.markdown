@@ -52,7 +52,7 @@ tags:
 
 2. 配置私仓使用https协议，参考<https://docs.docker.com/registry/insecure/>
 
-### 与私仓相关操作
+### 6.1 与私仓相关操作
 向私仓push image：
 
     docker build -t your-image:latest
