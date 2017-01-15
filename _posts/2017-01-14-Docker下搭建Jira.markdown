@@ -56,7 +56,7 @@ Jira是一款非常强大的流程管理软件，是atlassian公司推出的收�
 
         docker build -t milin/jira /opt/docker/build/jira-build/
 
-[a]: https://github.com/lcjqyml/Study/blob/master/Docs/jira/jira%E7%A0%B4%E8%A7%A3%E8%A1%A5%E4%B8%81/atlassian-extras-3.1.2.jar
+[a]: http://pan.baidu.com/s/1ge8mqAJ
 
 ### 2.2.2 启动Jira容器并配置
     docker run -d --name jira \
