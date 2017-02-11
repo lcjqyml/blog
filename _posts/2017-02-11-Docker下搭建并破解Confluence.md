@@ -13,7 +13,7 @@ tags:
 # 1. 概述
 Confluence是企业级的Wiki解决方案，但是它并不是免费的。此博客将介绍怎样在Docker下安装Confluence并手动破解之。
 
-# 2. 破解
+# 2. 破解并安装
 * 通过以下maven依赖下载jar包
 
         <dependency>
