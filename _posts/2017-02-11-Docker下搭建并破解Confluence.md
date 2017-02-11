@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      "Docker下搭建Jira"
-date:       2017-01-14
+title:      "Docker下搭建Confluence"
+date:       2017-02-11
 author:     "Milin"
 catalog:    true
 tags:
