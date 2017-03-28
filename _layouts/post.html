@@ -230,16 +230,8 @@ layout: default
 
 {% if site.gentie_product_key %}
 <!-- 网易云跟帖 公共JS代码 start (一个网页只需插入一次) -->
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
 <script>
-    (function() {
-        var ygt = document.createElement('script');
-        ygt.type = 'text/javascript';
-        ygt.async = true;
-        ygt.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//img1.cache.netease.com/f2e/tie/yun/sdk/loader.js';
-        ygt.charset = 'UTF-8';
-        (document.getElementsByTagName('head')[0]
-        || document.getElementsByTagName('body')[0]).appendChild(ygt);
-    })();
     var cloudTieConfig = {
         url: document.location.href,
         sourceId: "",
