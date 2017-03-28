@@ -46,11 +46,12 @@ kramdown:
 #disqus_username: milin
 
 # Duoshuo settings
-duoshuo_username: milin
+#duoshuo_username: milin
 # Share component is depend on Comment so we can NOT use share only.
-duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+#duoshuo_share: true                     # set to false if you want to use Comment without Sharing
 
-
+# Wang yi yun gen tie
+gentie_product_key: 6c2737f03000455f96a188044867fcf2
 
 
 # Analytics settings

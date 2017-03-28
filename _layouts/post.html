@@ -127,6 +127,11 @@ layout: default
                 <!-- disqus 评论框 end -->
                 {% endif %}
 
+                <!-- 网易云跟帖 -->
+                {% if site.gentie_product_key %}
+                <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+                {% endif %}
+
             </div>  
 
     <!-- Side Catalog Container -->
@@ -223,6 +228,29 @@ layout: default
 <!-- disqus 公共JS代码 end -->
 {% endif %}
 
+{% if site.gentie_product_key %}
+<!-- 网易云跟帖 公共JS代码 start (一个网页只需插入一次) -->
+<script>
+    (function() {
+        var ygt = document.createElement('script');
+        ygt.type = 'text/javascript';
+        ygt.async = true;
+        ygt.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//img1.cache.netease.com/f2e/tie/yun/sdk/loader.js';
+        ygt.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+        var cloudTieConfig = {
+            url: document.location.href,
+            sourceId: "",
+            productKey: "{{site.gentie_product_key}}",
+            target: "cloud-tie-wrapper"
+        };
+        var yunManualLoad = true;
+        Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+    })();
+</script>
+<!-- 网易云跟帖 公共JS代码 end -->
+{% endif %}
 
 {% if site.anchorjs %}
 <!-- async load function -->

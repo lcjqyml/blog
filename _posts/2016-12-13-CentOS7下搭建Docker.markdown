@@ -6,6 +6,7 @@ author:     "Milin"
 catalog:    true
 tags:
  - 技术
+ - CentOS7
  - Docker
 ---
 
@@ -67,3 +68,8 @@ tags:
 
     docker run -d --restart=always your-registry-host:5000/library/your-image:latest
 
+### 6.2 搭建私仓UI界面
+运行以下命令
+    docker run -d --name registry-ui -p 8080:8080 atcol/docker-registry-ui
+
+通过localhost:8080访问ui界面，并配置使用
