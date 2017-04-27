@@ -70,6 +70,6 @@ tags:
 
 ### 6.2 搭建私仓UI界面
 运行以下命令
-    docker run -d --name registry-ui -p 8080:8080 atcol/docker-registry-ui
+    docker run -d --name registry-ui --restart always -p 8080:8080 --link registry:registry-src -e REGISTRY_URL=http://registry-src:5000/v2 -e REGISTRY_NAME=localhost:5000 hyper/docker-registry-web
 
-通过localhost:8080访问ui界面，并配置使用
+通过localhost:8080访问ui界面
