@@ -132,7 +132,11 @@ layout: default
                 <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
                 {% endif %}
 
-            </div>  
+                <!-- gitalk -->
+                {% if site.gitalk.github.client-id %}
+                <div id="gitalk-container"></div>
+                {% endif %}
+            </div>
 
     <!-- Side Catalog Container -->
         {% if page.catalog %}

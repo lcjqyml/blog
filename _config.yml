@@ -48,11 +48,14 @@ kramdown:
 # Duoshuo settings
 #duoshuo_username: milin
 # Share component is depend on Comment so we can NOT use share only.
-#duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+#duoshuo_share: true                     # set to false if you want to use Comment without Sharing DEPRECATED!
 
 # Wang yi yun gen tie
-gentie_product_key: 6c2737f03000455f96a188044867fcf2
+# gentie_product_key: 6c2737f03000455f96a188044867fcf2 # DEPRECATED!
 
+# gitalk
+gitalk.github.client-id: 3d96b0d84eab9be491a9
+gitalk.github.client-secret: 961ef5bd4bf48ee7562e57f1a45b99ac94fa7365
 
 # Analytics settings
 # Baidu Analytics
