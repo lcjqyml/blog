@@ -54,8 +54,8 @@ kramdown:
 # gentie_product_key: 6c2737f03000455f96a188044867fcf2 # DEPRECATED!
 
 # gitalk
-gitalk.github.client-id: 3d96b0d84eab9be491a9
-gitalk.github.client-secret: 961ef5bd4bf48ee7562e57f1a45b99ac94fa7365
+gitalk-github-client-id: 3d96b0d84eab9be491a9
+gitalk-github-client-secret: 961ef5bd4bf48ee7562e57f1a45b99ac94fa7365
 
 # Analytics settings
 # Baidu Analytics
