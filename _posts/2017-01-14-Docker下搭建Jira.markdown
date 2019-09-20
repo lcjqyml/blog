@@ -23,14 +23,15 @@ Jira是一款非常强大的流程管理软件，是atlassian公司推出的收�
 * Jira汉化配置，官方下载汉化包配置
 
 ## 2.1 数据库安装
-    docker run --name postgres -d \
+    docker run --name jira-postgresql -d \
+    --restart always \
     -e 'POSTGRES_USER=jira' \
     -e 'POSTGRES_PASSWORD=jira' \
     -e 'POSTGRES_DB=jiradb' \
     -e 'POSTGRES_ENCODING=UTF-8' \
     -e 'POSTGRES_COLLATE=C' \
     -e 'POSTGRES_COLLATE_TYPE=C' \
-    -v /opt/postgres:/var/lib/postgresql \
+    -v /opt/docker/jira/postgresql:/var/lib/postgresql \
     -p 5432:5432 \
     blacklabelops/postgres
 

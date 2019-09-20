@@ -58,10 +58,10 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 
     docker run --name gitlab-postgresql -d \
         --env 'DB_NAME=gitlabhq_production' \
-        --env 'DB_USER=gitlab' --env 'DB_PASS=password' \
+        --env 'DB_USER=gitlab' --env 'DB_PASS=cmcc1234' \
         --env 'DB_EXTENSION=pg_trgm' \
-        --restart on-failure:5 \
-        --volume /srv/docker/gitlab/postgresql:/var/lib/postgresql \
+        --restart always \
+        --volume /opt/docker/gitlab_postgresql:/var/lib/postgresql \
         sameersbn/postgresql:latest
 
 这里，"--env"选项后面的内容请不要随意变更，这里的配置都是GitLab默认的数据库配置，如果没有在后面GitLab镜像启动的设置里面做相应的修改的话，这里的修改会让程序无法正常运行。
@@ -73,7 +73,7 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 
 然后启动它:
 
-    docker run --name=gitlab-redis -d --restart on-failure:5 sameersbn/redis:latest
+    docker run --name=gitlab-redis -d --restart always sameersbn/redis:latest
 
 # 5. 启动GitLab
 在最终启动GitLab之前，我们还需要为GitLab创建一个目录用来存放提交上来的代码，docker-gitlab内部使用/home/git/data这个目录存放代码，我们在容器外部创建一个目录然后在启动的时候挂载到这个路径即可：
@@ -89,16 +89,16 @@ GitLab推荐使用PostgreSQL作为数据库。既然使用了docker，那么我�
 在完成上面所有的步骤以后，我们可以用以下命令启动GitLab：
 
         docker run --name gitlab -d \
-            --restart on-failure:5 \
+            --restart always \
             --link gitlab-postgresql:postgresql --link gitlab-redis:redisio \
-            --publish 10022:22 --publish 10080:80 \
-            --env 'GITLAB_PORT=10080' --env 'GITLAB_SSH_PORT=10022' \
-            --env 'GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alpha-numeric-string' \
-            --env 'GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alpha-numeric-string' \
-            --env 'GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alpha-numeric-string' \
-            --env 'GITLAB_HOST=192.168.2.201' \
-            --volume /opt/gitlab/data:/home/git/data \
-            --volume /opt/gitlab/backups:/home/git/data/backups \
+            --publish 10022:22 --publish 8888:80 \
+            --env 'GITLAB_PORT=8888' --env 'GITLAB_SSH_PORT=10022' \
+            --env 'GITLAB_SECRETS_DB_KEY_BASE=QWFQeRyYnwa01Db1s7gSC8wOKwmXBFZC7qpuhmjiZjdSfHYePplacvdDVOJZnOzn' \
+            --env 'GITLAB_SECRETS_SECRET_KEY_BASE=UI7KcmRHW5q0bPNR21hG2S8P0sgwA9eRPGcjKBL9fZ3fjzNLdyIMZZZwzxOI2L7R' \
+            --env 'GITLAB_SECRETS_OTP_KEY_BASE=5JG98wcuCsn30MlmliGXVlGjlHUnsoq30FkueB3jMuEEJAj6Mbpn1zwFZrKpO3sW' \
+            --env 'GITLAB_HOST=192.168.201.101' \
+            --volume /opt/docker/gitlab/data:/home/git/data \
+            --volume /opt/docker/gitlab/backups:/home/git/data/backups \
             sameersbn/gitlab:latest
 
 上面的命令将使用10080作为GitLab的Web访问端口，10022将作为ssh push和pull代码的端口。
