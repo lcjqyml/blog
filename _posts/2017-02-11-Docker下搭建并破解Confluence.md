@@ -1,6 +1,7 @@
 ---
 layout:     post
 title:      "Docker下搭建Confluence"
+id:         "set up confluence on docker"
 date:       2017-02-11
 author:     "Milin"
 catalog:    true

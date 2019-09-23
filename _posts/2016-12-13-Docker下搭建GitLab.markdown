@@ -1,6 +1,7 @@
 ---
 layout:     post
 title:      "Docker下搭建GitLab"
+id:         "set up gitlab on docker"
 date:       2016-12-13
 author:     "Milin"
 catalog:    true
