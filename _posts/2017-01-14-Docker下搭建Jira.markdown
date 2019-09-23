@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Docker下搭建Jira"
-label:      "set up jira on docker"
+label:      "setUpJiraOnDocker"
 date:       2017-01-14
 author:     "Milin"
 catalog:    true

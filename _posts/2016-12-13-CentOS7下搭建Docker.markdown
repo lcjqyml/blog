@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "CentOS7下搭建Docker"
-label:      "set up docker on centos7"
+label:      "setUpDockerOnCentos7"
 date:       2016-12-13
 author:     "Milin"
 catalog:    true

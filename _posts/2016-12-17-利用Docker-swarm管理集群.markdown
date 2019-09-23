@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Docker Swarm管理Docker集群"
-label:      "docker swarm"
+label:      "dockerSwarm"
 date:       2016-12-17
 author:     "Milin"
 catalog:    true

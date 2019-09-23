@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Docker下搭建Jenkins"
-label:      "set up jenkins on docker"
+label:      "setUpJenkinsOnDocker"
 date:       2016-12-20
 author:     "Milin"
 catalog:    true
