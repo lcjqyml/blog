@@ -255,10 +255,10 @@ layout: default
     var gitalk = new Gitalk({
         clientID: '{{site.gitalk-github-client-id}}',
         clientSecret: '{{site.gitalk-github-client-secret}}',
-        repo: 'lcjqyml.github.io',
+        repo: 'lcjqyml/lcjqyml.github.io',
         owner: 'lcjqyml',
         admin: ['lcjqyml'],
-        id: location.pathname,      // Ensure uniqueness and length less than 50
+        id: '{{ page.title }}',      // Ensure uniqueness and length less than 50
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
     gitalk.render('gitalk-container')
