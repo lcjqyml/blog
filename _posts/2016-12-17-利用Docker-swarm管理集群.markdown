@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "利用Docker Swarm管理Docker集群"
+title:      "Docker Swarm管理Docker集群"
 date:       2016-12-17
 author:     "Milin"
 catalog:    true
